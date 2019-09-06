@@ -1,4 +1,4 @@
-package network
+package netfile
 
 import (
 	"fmt"
