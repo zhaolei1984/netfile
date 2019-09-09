@@ -96,7 +96,7 @@ func (s *sshFptService) GetFtpClient(client *ssh.Client) (*sftp.Client, error) {
 }
 
 // 将from(可以是目录或文件)远程拷贝到to目录下
-func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
+func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -104,7 +104,11 @@ func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFil
 			return err
 		}
 	}
-
+	for _, i := range ignoresList {
+		if i == from {
+			return nil
+		}
+	}
 	isDir, err := IsDir(from)
 	if err != nil {
 		return err
@@ -117,6 +121,16 @@ func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFil
 		for _, fileName := range fileList {
 			newFrom := path.Join(from, fileName)
 			newTo := path.Join(to, fileName)
+			isIgnore := false
+			for _, i := range ignoresList {
+				if i == newFrom {
+					isIgnore = true
+					break
+				}
+			}
+			if isIgnore {
+				continue
+			}
 			isDir, err := IsDir(newFrom)
 			if err != nil {
 				return err
@@ -125,7 +139,7 @@ func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFil
 				if err := client.MkdirAll(newTo); err != nil {
 					return err
 				}
-				if err := s.ScpCopyTo(client, newFrom, newTo, chmodFileList); err != nil {
+				if err := s.ScpCopyTo(client, newFrom, newTo, chmodFileList, ignoresList); err != nil {
 					return err
 				}
 			} else {
@@ -190,12 +204,18 @@ func (s *sshFptService) ScpCopyFileTo(client *sftp.Client, from, to string, chmo
 }
 
 // 将from(可以是目录或文件)远程拷贝到to目录下
-func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
+func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
 		if err != nil {
 			return err
+		}
+	}
+
+	for _, i := range ignoresList {
+		if i == from {
+			return nil
 		}
 	}
 
@@ -211,6 +231,16 @@ func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodF
 		for _, fileName := range fileList {
 			newFrom := path.Join(from, fileName)
 			newTo := path.Join(to, fileName)
+			isIgnore := false
+			for _, i := range ignoresList {
+				if i == newFrom {
+					isIgnore = true
+					break
+				}
+			}
+			if isIgnore {
+				continue
+			}
 			isDir, err := s.IsDir(client, newFrom)
 			if err != nil {
 				return err
@@ -219,7 +249,7 @@ func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodF
 				if err := os.MkdirAll(newTo, DIRPERMISSION); err != nil {
 					return err
 				}
-				if err := s.ScpCopyFrom(client, newFrom, newTo, chmodFileList); err != nil {
+				if err := s.ScpCopyFrom(client, newFrom, newTo, chmodFileList, ignoresList); err != nil {
 					return err
 				}
 			} else {
