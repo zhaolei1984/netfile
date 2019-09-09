@@ -151,6 +151,13 @@ func (s *sshFptService) ScpCopyFileTo(client *sftp.Client, from, to string, chmo
 		}
 	}
 
+	dirPath := GetParentDirectory(to)
+	if isExist, _ := s.PathExists(client, dirPath); !isExist {
+		if err := client.MkdirAll(dirPath); err != nil {
+			return err
+		}
+	}
+
 	srcFile, err := os.Open(from)
 	if err != nil {
 		return err
@@ -209,7 +216,7 @@ func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodF
 				return err
 			}
 			if isDir {
-				if err := os.MkdirAll(newTo, 500); err != nil {
+				if err := os.MkdirAll(newTo, DIRPERMISSION); err != nil {
 					return err
 				}
 				if err := s.ScpCopyFrom(client, newFrom, newTo, chmodFileList); err != nil {
@@ -234,6 +241,13 @@ func (s *sshFptService) ScpCopyFileFrom(client *sftp.Client, from, to string, ch
 		var err error
 		client, err = s.GetFtpClient(nil)
 		if err != nil {
+			return err
+		}
+	}
+
+	dirPath := GetParentDirectory(to)
+	if isExist, _ := PathExists(dirPath); !isExist {
+		if err := os.MkdirAll(dirPath, DIRPERMISSION); err != nil {
 			return err
 		}
 	}
@@ -329,4 +343,16 @@ func (s *sshFptService) GetDirFileList(client *sftp.Client, path string) ([]stri
 		fileList = append(fileList, fi.Name())
 	}
 	return fileList, nil
+}
+
+// 判断文件或目录是否存在
+func (s *sshFptService) PathExists(client *sftp.Client, path string) (bool, error) {
+	_, err := client.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

@@ -15,3 +15,5 @@ type ChmodFile struct {
 	FilePermission string      `json:"file_permission"` // 文件要修改后的权限,8进制数字字符串格式,0777
 	Mode           os.FileMode `json:"mode"`            // 文件要修改后的权限,10进制格式,511
 }
+
+const DIRPERMISSION = 420 // 目录权限默认为：644

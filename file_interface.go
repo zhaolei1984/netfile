@@ -15,6 +15,7 @@ type SshFtpInterface interface {
 	Chmod(client *sftp.Client, path string, modeFile *ChmodFile) error
 	ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
 	ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
+	PathExists(client *sftp.Client, path string) (bool, error)
 }
 
 type sshFptService struct {

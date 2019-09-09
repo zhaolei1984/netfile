@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 // 获取路径文件及其子目录文件列表
@@ -62,4 +63,21 @@ func Chmod(path string, modeFile *ChmodFile) error {
 		}
 	}
 	return os.Chmod(path, modeFile.Mode)
+}
+
+// 判断文件或目录是否存在
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+// 获取路径的目录
+func GetParentDirectory(path string) string {
+	return path[0:strings.LastIndex(path, "/")]
 }
