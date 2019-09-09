@@ -13,8 +13,8 @@ type SshFtpInterface interface {
 	ScpCopyTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error
 	ScpCopyFileTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
 	Chmod(client *sftp.Client, path string, modeFile *ChmodFile) error
-	ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
-	ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error
+	ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error
+	ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
 	PathExists(client *sftp.Client, path string) (bool, error)
 }
 
