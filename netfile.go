@@ -12,6 +12,22 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+type sshFptService struct {
+	Para *Auth
+}
+
+func NewSshFtpInterface(para *Auth) SshFtpInterface {
+	if para.Port == nil {
+		port := 22
+		para.Port = &port
+	}
+	if para.FileBufSize == nil {
+		fileBufSize := 10240
+		para.FileBufSize = &fileBufSize
+	}
+	return &sshFptService{para}
+}
+
 func (s *sshFptService) GetSshSession() (*ssh.Session, error) {
 	var (
 		auth         []ssh.AuthMethod

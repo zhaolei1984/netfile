@@ -17,19 +17,3 @@ type SshFtpInterface interface {
 	ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error
 	PathExists(client *sftp.Client, path string) (bool, error)
 }
-
-type sshFptService struct {
-	Para *Auth
-}
-
-func NewSshFtpInterface(para *Auth) SshFtpInterface {
-	if para.Port == nil {
-		port := 22
-		para.Port = &port
-	}
-	if para.FileBufSize == nil {
-		fileBufSize := 10240
-		para.FileBufSize = &fileBufSize
-	}
-	return &sshFptService{para}
-}
