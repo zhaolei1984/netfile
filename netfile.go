@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type sshFptService struct {
+type sshFtpService struct {
 	Para *Auth
 }
 
@@ -25,10 +25,10 @@ func NewSshFtpInterface(para *Auth) SshFtpInterface {
 		fileBufSize := 10240
 		para.FileBufSize = &fileBufSize
 	}
-	return &sshFptService{para}
+	return &sshFtpService{para}
 }
 
-func (s *sshFptService) GetSshSession() (*ssh.Session, error) {
+func (s *sshFtpService) GetSshSession() (*ssh.Session, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -66,7 +66,7 @@ func (s *sshFptService) GetSshSession() (*ssh.Session, error) {
 }
 
 // 远程执行cmd命令
-func (s *sshFptService) SshRun(client *ssh.Session, cmd string) error {
+func (s *sshFtpService) SshRun(client *ssh.Session, cmd string) error {
 	if client == nil {
 		var err error
 		client, err = s.GetSshSession()
@@ -77,7 +77,7 @@ func (s *sshFptService) SshRun(client *ssh.Session, cmd string) error {
 	return client.Run(cmd)
 }
 
-func (s *sshFptService) GetSshClient() (*ssh.Client, error) {
+func (s *sshFtpService) GetSshClient() (*ssh.Client, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -100,7 +100,7 @@ func (s *sshFptService) GetSshClient() (*ssh.Client, error) {
 	return ssh.Dial("tcp", addr, clientConfig)
 }
 
-func (s *sshFptService) GetFtpClient(client *ssh.Client) (*sftp.Client, error) {
+func (s *sshFtpService) GetFtpClient(client *ssh.Client) (*sftp.Client, error) {
 	if client == nil {
 		var err error
 		client, err = s.GetSshClient()
@@ -112,7 +112,7 @@ func (s *sshFptService) GetFtpClient(client *ssh.Client) (*sftp.Client, error) {
 }
 
 // 将from(可以是目录或文件)远程拷贝到to目录下
-func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
+func (s *sshFtpService) ScpCopyTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -172,7 +172,7 @@ func (s *sshFptService) ScpCopyTo(client *sftp.Client, from, to string, chmodFil
 }
 
 // 将from文件远程拷贝到to目录下
-func (s *sshFptService) ScpCopyFileTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
+func (s *sshFtpService) ScpCopyFileTo(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -220,7 +220,7 @@ func (s *sshFptService) ScpCopyFileTo(client *sftp.Client, from, to string, chmo
 }
 
 // 将from(可以是目录或文件)远程拷贝到to目录下
-func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
+func (s *sshFtpService) ScpCopyFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile, ignoresList []string) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -282,7 +282,7 @@ func (s *sshFptService) ScpCopyFrom(client *sftp.Client, from, to string, chmodF
 }
 
 // 将from文件远程拷贝到to目录下
-func (s *sshFptService) ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
+func (s *sshFtpService) ScpCopyFileFrom(client *sftp.Client, from, to string, chmodFileList []*ChmodFile) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -330,7 +330,7 @@ func (s *sshFptService) ScpCopyFileFrom(client *sftp.Client, from, to string, ch
 }
 
 // 将path文件权限为filePermission
-func (s *sshFptService) Chmod(client *sftp.Client, path string, modeFile *ChmodFile) error {
+func (s *sshFtpService) Chmod(client *sftp.Client, path string, modeFile *ChmodFile) error {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -356,7 +356,7 @@ func (s *sshFptService) Chmod(client *sftp.Client, path string, modeFile *ChmodF
 }
 
 // 判断远程路径是否为目录
-func (s *sshFptService) IsDir(client *sftp.Client, path string) (bool, error) {
+func (s *sshFtpService) IsDir(client *sftp.Client, path string) (bool, error) {
 	if client == nil {
 		var err error
 		client, err = s.GetFtpClient(nil)
@@ -372,7 +372,7 @@ func (s *sshFptService) IsDir(client *sftp.Client, path string) (bool, error) {
 }
 
 // 获取路径下文件及文件夹名称列表
-func (s *sshFptService) GetDirFileList(client *sftp.Client, path string) ([]string, error) {
+func (s *sshFtpService) GetDirFileList(client *sftp.Client, path string) ([]string, error) {
 	var fileList []string
 	if client == nil {
 		var err error
@@ -392,7 +392,7 @@ func (s *sshFptService) GetDirFileList(client *sftp.Client, path string) ([]stri
 }
 
 // 判断文件或目录是否存在
-func (s *sshFptService) PathExists(client *sftp.Client, path string) (bool, error) {
+func (s *sshFtpService) PathExists(client *sftp.Client, path string) (bool, error) {
 	_, err := client.Stat(path)
 	if err == nil {
 		return true, nil
